@@ -50,8 +50,8 @@ signals:
     void finished();
 
 private:
-    QWeakPointer<QThread> m_thread;
-    QWeakPointer<RtspStreamWorker> m_worker;
+    QThread *m_thread;
+    RtspStreamWorker *m_worker;
     QMutex m_workerMutex;
     bool m_isRunning;
 

@@ -24,7 +24,9 @@
 #include <QUrl>
 
 RtspStreamThread::RtspStreamThread(QObject *parent) :
-        QObject(parent), m_workerMutex(QMutex::Recursive), m_isRunning(false)
+        QObject(parent),
+        m_thread(NULL), m_worker(NULL),
+        m_workerMutex(QMutex::Recursive), m_isRunning(false)
 {
 }
 
@@ -47,21 +49,18 @@ void RtspStreamThread::start(const QUrl &url)
         RtspStreamWorker *worker = new RtspStreamWorker();
         m_worker = worker;
 
-        worker->moveToThread(m_thread.data());
+        worker->moveToThread(m_thread);
 
-        m_worker.data()->setUrl(url);
+        m_worker->setUrl(url);
 
-        connect(m_thread.data(), SIGNAL(started()), m_worker.data(), SLOT(run()));
-        connect(m_thread.data(), SIGNAL(finished()), m_thread.data(), SLOT(deleteLater()));
-        connect(m_worker.data(), SIGNAL(fatalError(QString)), this, SIGNAL(fatalError(QString)));        
-        connect(m_worker.data(), SIGNAL(destroyed()), m_thread.data(), SLOT(quit()));
+        connect(m_thread, SIGNAL(started()), m_worker, SLOT(run()));
+        connect(m_worker, SIGNAL(fatalError(QString)), this, SIGNAL(fatalError(QString)));
+        connect(m_worker, SIGNAL(bytesDownloaded(uint)), bcApp->globalRate, SLOT(addSampleValue(uint)));
 
-        connect(m_worker.data(), SIGNAL(bytesDownloaded(uint)), bcApp->globalRate, SLOT(addSampleValue(uint)));
-
-        m_thread.data()->start();
+        m_thread->start();
     }
     else
-        m_worker.data()->metaObject()->invokeMethod(m_worker.data(), "run");
+        m_worker->metaObject()->invokeMethod(m_worker, "run");
 
     m_isRunning = true;
 }
@@ -74,10 +73,13 @@ void RtspStreamThread::stop()
 
     if (m_worker)
     {
-        /* Worker will delete itself, which will then destroy the thread */
-        m_worker.data()->stop();
-        m_worker.clear();
-        m_thread.clear();
+        m_worker->stop();
+        m_thread->wait(ULONG_MAX);
+
+        delete m_worker;
+        delete m_thread;
+        m_worker = NULL;
+        m_thread = NULL;
     }
 
   //  Q_ASSERT(!m_thread);
@@ -87,14 +89,14 @@ void RtspStreamThread::setPaused(bool paused)
 {
     QMutexLocker locker(&m_workerMutex);
 
-    m_worker.data()->setPaused(paused);
+    m_worker->setPaused(paused);
 }
 
 bool RtspStreamThread::hasWorker()
 {
     QMutexLocker locker(&m_workerMutex);
 
-    return !m_worker.isNull();
+    return m_worker;
 }
 
 bool RtspStreamThread::isRunning() const
@@ -107,7 +109,7 @@ void RtspStreamThread::setAutoDeinterlacing(bool autoDeinterlacing)
     QMutexLocker locker(&m_workerMutex);
 
     if (hasWorker())
-        m_worker.data()->setAutoDeinterlacing(autoDeinterlacing);
+        m_worker->setAutoDeinterlacing(autoDeinterlacing);
 }
 
 RtspStreamFrame * RtspStreamThread::frameToDisplay()
@@ -115,7 +117,7 @@ RtspStreamFrame * RtspStreamThread::frameToDisplay()
     QMutexLocker locker(&m_workerMutex);
 
     if (hasWorker())
-        return m_worker.data()->frameToDisplay();
+        return m_worker->frameToDisplay();
     else
         return 0;
 }

@@ -94,8 +94,6 @@ void RtspStreamWorker::run()
 
     if (setup())
         processStreamLoop();
-
-    deleteLater();
 }
 
 void RtspStreamWorker::processStreamLoop()
@@ -369,6 +367,7 @@ void RtspStreamWorker::stop()
 {
     m_cancelFlag = true;
     m_threadPause.setPaused(false);
+    startInterruptableOperation(1);
 }
 
 void RtspStreamWorker::setPaused(bool paused)
