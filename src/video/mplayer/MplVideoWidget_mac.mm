@@ -26,6 +26,8 @@
 #include <QDebug>
 #include <QMutexLocker>
 
+#include <unistd.h>
+
 
 // MPlayer OS X VO Protocol
 @protocol MPlayerOSXVOProto
@@ -92,7 +94,8 @@ sharedBufferName:(NSString *)aName
     {
     }
 
-    [m_sharedBufferName release]
+    [m_sharedBufferName release];
+    [super dealloc];
 }
 
 - (void)connect
@@ -158,10 +161,11 @@ void MplVideoWidget::getFrame()
                                       AV_PIX_FMT_ARGB, 0, 0, 0, 0);
 
 
-    uint8_t * inData[1] = { rgb24Data };
+    uint8_t * inData[1] = { m_sharedBuffer };
     int inLinesize[1] = { m_bpp * m_frameWidth };
     int outLinesize[1];
-    sws_scale(ctx, inData, inLinesize, 0, m_frameHeight, m_backBuffer, outLinesize);
+    uint8_t *outData[1] = { m_backBuffer };
+    sws_scale(ctx, inData, inLinesize, 0, m_frameHeight, outData, outLinesize);
 
     //switch buffers
     m_frameLock.lock();
@@ -194,7 +198,7 @@ void MplVideoWidget::stop()
     m_bufferSize = 0;
 }
 
-void MplVideoWidget::initSharedMem(const char bufferName, int width, int height, int bpp)
+void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height, int bpp)
 {
     QMutexLocker locker(&m_frameLock);
 
@@ -218,9 +222,9 @@ void MplVideoWidget::initSharedMem(const char bufferName, int width, int height,
     {
         munmap(m_sharedBuffer, m_bufferSize);
     }
-    m_sharedBuffer = mmap(NULL, m_bufferSize, PROT_READ, MAP_SHARED, shbf, 0);
+    m_sharedBuffer = (unsigned char*) mmap(NULL, m_bufferSize, PROT_READ, MAP_SHARED, shbf, 0);
 
-    close(shbf);
+    ::close(shbf);
 
     if (m_sharedBuffer == MAP_FAILED)
     {
@@ -238,8 +242,8 @@ void MplVideoWidget::initSharedMem(const char bufferName, int width, int height,
         free(m_backBuffer);
     }
 
-    m_frontBuffer = malloc(m_bufferSize);
-    m_backBuffer = malloc(m_bufferSize);
+    m_frontBuffer = (unsigned char*) malloc(m_bufferSize);
+    m_backBuffer = (unsigned char*) malloc(m_bufferSize);
 
     switch (bpp)
     {
@@ -287,8 +291,7 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
     m_renderer = [[VideoRenderer alloc] initWithWidget:this
    sharedBufferName:[[NSString alloc] initWithBytes:"bceventmplayer"
                     length:14
-                    encoding:NSASCIIStringEncoding]
-   videoLayer:presentationController.mediaView.videoLayer];
+                    encoding:NSASCIIStringEncoding]];
 }
 
 void MplVideoWidget::initVideo(VideoPlayerBackend *videoPlayerBackend)

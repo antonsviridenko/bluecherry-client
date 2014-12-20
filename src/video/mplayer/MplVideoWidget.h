@@ -75,7 +75,7 @@ private:
     QMutex m_frameLock;
     int m_bufferSize;
     AVPixelFormat m_pixelFormat;
-    const unsigned char *m_sharedBuffer;
+    unsigned char *m_sharedBuffer;
     unsigned char *m_frontBuffer;
     unsigned char *m_backBuffer;
     int m_bpp;//bytes per pixel
@@ -83,7 +83,7 @@ private:
 
 public:
     //methods for handling MPlayer OS X VO Protocol
-    void initSharedMem(const char bufferName, int width, int height, int bpp);
+    void initSharedMem(const char *bufferName, int width, int height, int bpp);
     void getFrame();
     void stop();
 #endif
