@@ -164,16 +164,26 @@ void MplVideoWidget::getFrame()
     if (!m_sharedBuffer || !m_frontBuffer || !m_backBuffer)
         return;
 
+    qDebug() << "MplVideoWidget::getFrame()\n";
+
     SwsContext * ctx = sws_getContext(m_frameWidth, m_frameHeight,
                                       m_pixelFormat, m_frameWidth, m_frameHeight,
                                       AV_PIX_FMT_ARGB, 0, 0, 0, 0);
 
+
+    if (NULL == ctx)
+    {
+        qDebug() << "MplVideoWidget::getFrame() sws_getContext() failed\n";
+        return;
+    }
 
     uint8_t * inData[1] = { m_sharedBuffer };
     int inLinesize[1] = { m_bpp * m_frameWidth };
     int outLinesize[1];
     uint8_t *outData[1] = { m_backBuffer };
     sws_scale(ctx, inData, inLinesize, 0, m_frameHeight, outData, outLinesize);
+
+    sws_freeContext(ctx);
 
     //switch buffers
     m_frameLock.lock();
@@ -225,6 +235,7 @@ void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height
     m_frameHeight = height;
     m_bpp = bpp;
 
+    qDebug() << "MplVideoWidget::initSharedMem() width=" << width << " height=" << height << " bpp=" << bpp << "\n";
 
     if (m_sharedBuffer)
     {
