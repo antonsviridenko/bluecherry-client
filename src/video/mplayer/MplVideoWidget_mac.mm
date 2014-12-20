@@ -28,6 +28,28 @@
 
 #include <unistd.h>
 
+// MPlayer OS X VO Protocol
+@protocol MPlayerOSXVOProto
+- (int) startWithWidth: (bycopy int)width
+            withHeight: (bycopy int)height
+             withBytes: (bycopy int)bytes
+            withAspect: (bycopy int)aspect;
+- (void) stop;
+- (void) render;
+- (void) toggleFullscreen;
+- (void) ontop;
+@end
+
+
+@interface VideoRenderer : NSObject <MPlayerOSXVOProto> {
+    NSString *m_sharedBufferName;
+    MplVideoWidget *m_widget;
+    NSThread *m_thread;
+}
+
+- (id)initWithWidget:(MplVideoWidget *)aWidget
+sharedBufferName:(NSString *)aName
+@end
 
 
 @interface VideoRenderer ()
@@ -273,7 +295,7 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
 
     setViewport(new QWidget);
 
-    m_renderer = [[VideoRenderer alloc] initWithWidget:this
+    /*m_renderer = */(void) [[VideoRenderer alloc] initWithWidget:this
    sharedBufferName:[[NSString alloc] initWithBytes:"bceventmplayer"
                     length:14
                     encoding:NSASCIIStringEncoding]];

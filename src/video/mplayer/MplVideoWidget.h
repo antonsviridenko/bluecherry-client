@@ -33,30 +33,6 @@ extern "C"
 
 //class VideoRenderer;
 
-// MPlayer OS X VO Protocol
-@protocol MPlayerOSXVOProto
-- (int) startWithWidth: (bycopy int)width
-            withHeight: (bycopy int)height
-             withBytes: (bycopy int)bytes
-            withAspect: (bycopy int)aspect;
-- (void) stop;
-- (void) render;
-- (void) toggleFullscreen;
-- (void) ontop;
-@end
-
-
-@interface VideoRenderer : NSObject <MPlayerOSXVOProto> {
-    NSString *m_sharedBufferName;
-    MplVideoWidget *m_widget;
-    NSThread *m_thread;
-}
-
-- (id)initWithWidget:(MplVideoWidget *)aWidget
-sharedBufferName:(NSString *)aName
-@end
-
-
 #endif
 
 class MplVideoWidget : public VideoWidget
@@ -103,7 +79,7 @@ private:
     unsigned char *m_frontBuffer;
     unsigned char *m_backBuffer;
     int m_bpp;//bytes per pixel
-    VideoRenderer *m_renderer;
+    //VideoRenderer *m_renderer;
 
 public:
     //methods for handling MPlayer OS X VO Protocol
