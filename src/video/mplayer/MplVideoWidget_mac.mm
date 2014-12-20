@@ -25,6 +25,7 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QMutexLocker>
+#include <QPainter>
 
 #include <unistd.h>
 
@@ -48,7 +49,7 @@
 }
 
 - (id)initWithWidget:(MplVideoWidget *)aWidget
-sharedBufferName:(NSString *)aName
+sharedBufferName:(NSString *)aName;
 @end
 
 
@@ -108,7 +109,7 @@ sharedBufferName:(NSString *)aName
 
         NSConnection *serverConnection = [NSConnection new];
         [serverConnection setRootObject:self];
-        [serverConnection registerName:connectionName];
+        [serverConnection registerName:m_sharedBufferName];
 
         CFRunLoopRun();
 
@@ -269,7 +270,7 @@ MplVideoWidget::~MplVideoWidget()
 {
     stop();
 
-    [m_renderer dealloc];
+    //[m_renderer dealloc];
 }
 
 MplVideoWidget::MplVideoWidget(QWidget *parent)
