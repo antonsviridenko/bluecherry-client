@@ -20,6 +20,21 @@
 
 #include "video/VideoWidget.h"
 
+#ifdef Q_OS_MAC
+#include <QMutex>
+#include <QImage>
+
+extern "C"
+{
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include "libswscale/swscale.h"
+}
+
+class VideoRenderer;
+
+#endif
+
 class MplVideoWidget : public VideoWidget
 {
     Q_OBJECT
@@ -46,13 +61,32 @@ protected:
     virtual void resizeEvent(QResizeEvent *ev);
     virtual void mouseDoubleClickEvent(QMouseEvent *ev);
     virtual void keyPressEvent(QKeyEvent *ev);
-    //virtual bool eventFilter(QObject *, QEvent *);
+#ifdef Q_OS_MAC
+    virtual bool eventFilter(QObject *, QEvent *);
+#endif
 
 private:
     QWidget *m_viewport;
     QString m_overlayMsg;
     int m_frameWidth, m_frameHeight;
     int m_normalFrameStyle;
+#ifdef Q_OS_MAC
+    QString m_sharedBufferName;
+    QMutex m_frameLock;
+    int m_bufferSize;
+    AVPixelFormat m_pixelFormat;
+    const unsigned char *m_sharedBuffer;
+    unsigned char *m_frontBuffer;
+    unsigned char *m_backBuffer;
+    int m_bpp;//bytes per pixel
+    VideoRenderer *m_renderer;
+
+public:
+    //methods for handling MPlayer OS X VO Protocol
+    void initSharedMem(const char bufferName, int width, int height, int bpp);
+    void getFrame();
+    void stop();
+#endif
 };
 
 #endif //MPL_VIDEOWIDGET_H

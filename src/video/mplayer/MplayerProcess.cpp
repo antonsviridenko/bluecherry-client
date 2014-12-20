@@ -95,22 +95,28 @@ bool MplayerProcess::start(QString filename)
 
     //qDebug() << this << "starting mplayer process, opening file " << filename << " ...\n";
 
-    m_process->start("mplayer", QStringList() << "-slave" //<< "-idle"
-                    << "-wid" << m_wid << "-quiet" << "-input"
+    m_process->start("mplayer", QStringList() << "-slave"
+#ifndef Q_OS_MAC
+                    << "-wid" << m_wid
+#endif
+                    << "-quiet" << "-input"
                     << "nodefault-bindings:conf=/dev/null" << "-noconfig" << "all"
                     << "-playing-msg" << MPL_PLAYMSGMAGIC"\n"
                     << "-nomouseinput" << "-zoom" << "-nomsgcolor"
                     << "-vf" << "screenshot=bluecherryscrnshot"
+                    << "-cache" << "512"
 #ifdef WIN32
                     << "-nofs"
                     << "-priority" << "abovenormal"
                     << "-nodr"
                     << "-double"
-                    << "-cache" << "512"
                     << "-noslices"
                     << "-osdlevel" << "0"
                     << "-colorkey" << "0x020202"
                     //<< "-nokeepaspect"
+#endif
+#ifdef Q_OS_MAC
+                    << "-vo" << "corevideo:shared_buffer:buffer_name=bceventmplayer"
 #endif
                     << filename);
 
