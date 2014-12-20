@@ -29,23 +29,6 @@
 #include <unistd.h>
 
 
-// MPlayer OS X VO Protocol
-@protocol MPlayerOSXVOProto
-- (int) startWithWidth: (bycopy int)width
-            withHeight: (bycopy int)height
-             withBytes: (bycopy int)bytes
-            withAspect: (bycopy int)aspect;
-- (void) stop;
-- (void) render;
-- (void) toggleFullscreen;
-- (void) ontop;
-@end
-
-
-@interface VideoRenderer : NSObject <MPlayerOSXVOProto>
-- (id)initWithWidget:(MplVideoWidget *)aWidget
-sharedBufferName:(NSString *)aName
-@end
 
 @interface VideoRenderer ()
 - (void)connect;
@@ -54,11 +37,7 @@ sharedBufferName:(NSString *)aName
 
 #pragma mark -
 
-@implementation VideoRenderer {
-NSString *m_sharedBufferName;
-MplVideoWidget *m_widget;
-NSThread *m_thread;
-}
+@implementation VideoRenderer
 
 - (id)initWithWidget:(MplVideoWidget *)aWidget
 sharedBufferName:(NSString *)aName
@@ -100,13 +79,19 @@ sharedBufferName:(NSString *)aName
 
 - (void)connect
 {
-    @autoreleasepool
-    {
-        [NSConnection serviceConnectionWithName:m_sharedBufferName
-                                     rootObject:self];
+    //@autoreleasepool
+    //{
+        //[NSConnection serviceConnectionWithName:m_sharedBufferName
+         //                            rootObject:self];
+
+        NSConnection *serverConnection = [NSConnection new];
+        [serverConnection setRootObject:self];
+        [serverConnection registerName:connectionName];
 
         CFRunLoopRun();
-   }
+
+        [serverConnection release];
+   //}
 }
 
 - (void)disconnect

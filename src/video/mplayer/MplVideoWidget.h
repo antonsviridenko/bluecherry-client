@@ -31,7 +31,31 @@ extern "C"
 #include "libswscale/swscale.h"
 }
 
-class VideoRenderer;
+//class VideoRenderer;
+
+// MPlayer OS X VO Protocol
+@protocol MPlayerOSXVOProto
+- (int) startWithWidth: (bycopy int)width
+            withHeight: (bycopy int)height
+             withBytes: (bycopy int)bytes
+            withAspect: (bycopy int)aspect;
+- (void) stop;
+- (void) render;
+- (void) toggleFullscreen;
+- (void) ontop;
+@end
+
+
+@interface VideoRenderer : NSObject <MPlayerOSXVOProto> {
+    NSString *m_sharedBufferName;
+    MplVideoWidget *m_widget;
+    NSThread *m_thread;
+}
+
+- (id)initWithWidget:(MplVideoWidget *)aWidget
+sharedBufferName:(NSString *)aName
+@end
+
 
 #endif
 
