@@ -73,7 +73,8 @@ private:
 #ifdef Q_OS_MAC
     QString m_sharedBufferName;
     QMutex m_frameLock;
-    int m_bufferSize;
+    int m_srcBufferSize;
+    int m_dstBufferSize;
     AVPixelFormat m_pixelFormat;
     unsigned char *m_sharedBuffer;
     unsigned char *m_frontBuffer;

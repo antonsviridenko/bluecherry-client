@@ -179,7 +179,7 @@ void MplVideoWidget::getFrame()
 
     uint8_t * inData[1] = { m_sharedBuffer };
     int inLinesize[1] = { m_bpp * m_frameWidth };
-    int outLinesize[1];
+    int outLinesize[1] = { 4 * m_frameWidth };
     uint8_t *outData[1] = { m_backBuffer };
     sws_scale(ctx, inData, inLinesize, 0, m_frameHeight, outData, outLinesize);
 
@@ -213,7 +213,7 @@ void MplVideoWidget::stop()
         m_sharedBuffer = NULL;
     }
 
-    m_bufferSize = 0;
+    m_srcBufferSize = 0;
 }
 
 void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height, int bpp)
@@ -230,7 +230,8 @@ void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height
         return;
     }
 
-    m_bufferSize = width * height * bpp;
+    m_srcBufferSize = width * height * bpp;
+    m_dstBufferSize = width * height * 4; // 4 bytes per pixel for 32bit BGRA pixel format
     m_frameWidth = width;
     m_frameHeight = height;
     m_bpp = bpp;
@@ -239,9 +240,9 @@ void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height
 
     if (m_sharedBuffer)
     {
-        munmap(m_sharedBuffer, m_bufferSize);
+        munmap(m_sharedBuffer, m_srcBufferSize);
     }
-    m_sharedBuffer = (unsigned char*) mmap(NULL, m_bufferSize, PROT_READ, MAP_SHARED, shbf, 0);
+    m_sharedBuffer = (unsigned char*) mmap(NULL, m_srcBufferSize, PROT_READ, MAP_SHARED, shbf, 0);
 
     ::close(shbf);
 
@@ -261,8 +262,8 @@ void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height
         free(m_backBuffer);
     }
 
-    m_frontBuffer = (unsigned char*) malloc(m_bufferSize);
-    m_backBuffer = (unsigned char*) malloc(m_bufferSize);
+    m_frontBuffer = (unsigned char*) malloc(m_dstBufferSize);
+    m_backBuffer = (unsigned char*) malloc(m_dstBufferSize);
 
     switch (bpp)
     {
@@ -291,7 +292,8 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
       m_frameHeight(-1),
       m_normalFrameStyle(0),
       m_sharedBuffer(0),
-      m_bufferSize(0),
+      m_srcBufferSize(0),
+      m_dstBufferSize(0),
       m_frontBuffer(0),
       m_backBuffer(0)
 {
