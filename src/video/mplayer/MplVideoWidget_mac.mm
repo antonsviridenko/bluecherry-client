@@ -182,7 +182,7 @@ void MplVideoWidget::getFrame()
 
     SwsContext * ctx = sws_getContext(m_frameWidth, m_frameHeight,
                                       m_pixelFormat, m_frameWidth, m_frameHeight,
-                                      AV_PIX_FMT_ARGB, 0, 0, 0, 0);
+                                      AV_PIX_FMT_RGBA, 0, 0, 0, 0);
 
 
     if (NULL == ctx)
