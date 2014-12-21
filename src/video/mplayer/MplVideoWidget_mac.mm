@@ -85,6 +85,8 @@ sharedBufferName:(NSString *)aName
 
 - (void)dealloc
 {
+    qDebug() << "[VideoRenderer dealloc]\n";
+
     if ([m_thread isExecuting])
     {
         [self performSelector:@selector(disconnect)
@@ -97,8 +99,15 @@ sharedBufferName:(NSString *)aName
     {
     }
 
+    qDebug() << "[VideoRenderer dealloc] going to release m_sharedBufferName\n";
+
     [m_sharedBufferName release];
+
+    qDebug() << "[VideoRenderer dealloc] going to dealloc super\n";
+
     [super dealloc];
+
+    qDebug() << "[VideoRenderer dealloc] finished\n";
 }
 
 - (void)connect
@@ -120,8 +129,12 @@ sharedBufferName:(NSString *)aName
 
 - (void)disconnect
 {
+    qDebug() << "[VideoRenderer disconnect]\n";
+
     CFRunLoopStop(CFRunLoopGetCurrent());
     [self stop];
+
+    qDebug() << "[VideoRenderer disconnect] finished\n";
 }
 
 #pragma mark -
@@ -201,6 +214,7 @@ void MplVideoWidget::stop()
     QMutexLocker locker(&m_frameLock);
 
     qDebug() << "MplVideoWidget::stop()\n";
+    qDebug() << "MplVideoWidget::stop() this = " << this << "\n";
 
     free(m_backBuffer);
     m_backBuffer = NULL;
@@ -215,6 +229,8 @@ void MplVideoWidget::stop()
     }
 
     m_srcBufferSize = 0;
+
+    qDebug() << "MplVideoWidget::stop() finished\n";
 }
 
 void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height, int bpp)
@@ -285,10 +301,17 @@ void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height
 
 MplVideoWidget::~MplVideoWidget()
 {
+    qDebug() << "MplVideoWidget::~MplVideoWidget()\n";
+    {
     stop();
 
     VideoRenderer *vr = (VideoRenderer*) m_renderer;
+
+    qDebug() << "MplVideoWidget::~MplVideoWidget() vr =" << vr << "\n";
+
     [vr dealloc];
+    }
+    qDebug() << "MplVideoWidget::~MplVideoWidget() finished\n";
 }
 
 MplVideoWidget::MplVideoWidget(QWidget *parent)
