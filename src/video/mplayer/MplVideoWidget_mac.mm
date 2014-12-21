@@ -209,7 +209,7 @@ void MplVideoWidget::stop()
 
     if (m_sharedBuffer)
     {
-        munmap(m_sharedBuffer, m_bufferSize);
+        munmap(m_sharedBuffer, m_srcBufferSize);
         m_sharedBuffer = NULL;
     }
 
