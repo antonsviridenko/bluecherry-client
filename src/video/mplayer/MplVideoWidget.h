@@ -80,7 +80,7 @@ private:
     unsigned char *m_frontBuffer;
     unsigned char *m_backBuffer;
     int m_bpp;//bytes per pixel
-    //VideoRenderer *m_renderer;
+    void *m_renderer;
 
 public:
     //methods for handling MPlayer OS X VO Protocol

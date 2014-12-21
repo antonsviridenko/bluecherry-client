@@ -28,6 +28,7 @@
 #include <QPainter>
 
 #include <unistd.h>
+#include <stdlib.h>
 
 // MPlayer OS X VO Protocol
 @protocol MPlayerOSXVOProto
@@ -222,6 +223,8 @@ void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height
 
     qDebug() << "initSharedMem()\n";
 
+    qDebug() << "initSharedMem()\n bufferName=" << bufferName << "\n";
+
     int shbf = shm_open(bufferName, O_RDONLY, S_IRUSR);
 
     if (shbf == -1)
@@ -262,8 +265,10 @@ void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height
         free(m_backBuffer);
     }
 
-    m_frontBuffer = (unsigned char*) malloc(m_dstBufferSize);
-    m_backBuffer = (unsigned char*) malloc(m_dstBufferSize);
+    qDebug() << "initSharedMem() - allocating front and back buffers\n";
+
+    m_frontBuffer = (unsigned char*) calloc(m_dstBufferSize, 1);
+    m_backBuffer = (unsigned char*) calloc(m_dstBufferSize, 1);
 
     switch (bpp)
     {
@@ -282,7 +287,8 @@ MplVideoWidget::~MplVideoWidget()
 {
     stop();
 
-    //[m_renderer dealloc];
+    VideoRenderer *vr = (VideoRenderer*) m_renderer;
+    [vr dealloc];
 }
 
 MplVideoWidget::MplVideoWidget(QWidget *parent)
@@ -309,8 +315,8 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
 
     setViewport(new QWidget);
 
-    /*m_renderer = */(void) [[VideoRenderer alloc] initWithWidget:this
-   sharedBufferName:[[NSString alloc] initWithBytes:"bceventmplayer"
+    m_renderer = (void*) [[VideoRenderer alloc] initWithWidget:this
+                    sharedBufferName:[[NSString alloc] initWithBytes:"bceventmplayer"
                     length:14
                     encoding:NSASCIIStringEncoding]];
 }
@@ -357,6 +363,8 @@ bool MplVideoWidget::eventFilter(QObject *obj, QEvent *ev)
     r.adjust((r.width() - scaledSize.width()) / 2, (r.height() - scaledSize.height()) / 2, 0, 0);
     r.setSize(scaledSize);
     p.drawImage(r, frame);
+
+    qDebug() << "QEvent::Paint handled\n";
 
     m_frameLock.unlock();
     return true;
