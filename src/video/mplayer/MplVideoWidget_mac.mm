@@ -105,6 +105,10 @@ sharedBufferName:(NSString *)aName
 
     qDebug() << "[VideoRenderer dealloc] going to dealloc super\n";
 
+    [m_thread release]
+
+    m_widget = 0;
+
     [super dealloc];
 
     qDebug() << "[VideoRenderer dealloc] finished\n";
@@ -309,7 +313,9 @@ MplVideoWidget::~MplVideoWidget()
 
     qDebug() << "MplVideoWidget::~MplVideoWidget() vr =" << vr << "\n";
 
-    [vr dealloc];
+    [vr release];
+
+    m_renderer = 0;
     }
     qDebug() << "MplVideoWidget::~MplVideoWidget() finished\n";
 }
