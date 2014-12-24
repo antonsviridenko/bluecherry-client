@@ -105,7 +105,7 @@ sharedBufferName:(NSString *)aName
 
     qDebug() << "[VideoRenderer dealloc] going to dealloc super\n";
 
-    [m_thread release]
+    [m_thread release];
 
     m_widget = 0;
 
