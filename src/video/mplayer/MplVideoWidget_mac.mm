@@ -292,10 +292,10 @@ void MplVideoWidget::initSharedMem(const char *bufferName, int width, int height
         m_pixelFormat = AV_PIX_FMT_RGB24;//k24RGBPixelFormat;
         break;
     case 4:
-        m_pixelFormat = AV_PIX_FMT_BGRA ;//k32BGRAPixelFormat;
+        m_pixelFormat = AV_PIX_FMT_BGRA;//k32BGRAPixelFormat;
         break;
     default:
-        m_pixelFormat = AV_PIX_FMT_YUYV422 ;//kYUVSPixelFormat;
+        m_pixelFormat = AV_PIX_FMT_YVYU422;//kYUVSPixelFormat;
     }
 }
 
