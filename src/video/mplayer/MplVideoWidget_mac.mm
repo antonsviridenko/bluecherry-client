@@ -321,8 +321,6 @@ MplVideoWidget::~MplVideoWidget()
     {
     //stop();
 
-    qDebug() << "MplVideoWidget::~MplVideoWidget() vr =" << vr << "\n";
-
     [m_renderer->m_vr release];
 
     delete m_renderer;
