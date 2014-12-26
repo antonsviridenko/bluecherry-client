@@ -33,6 +33,8 @@ extern "C"
 
 //class VideoRenderer;
 
+struct VideoRendererWrapper;
+
 #endif
 
 class MplVideoWidget : public VideoWidget
@@ -80,7 +82,7 @@ private:
     unsigned char *m_frontBuffer;
     unsigned char *m_backBuffer;
     int m_bpp;//bytes per pixel
-    void *m_renderer;
+    struct VideoRendererWrapper *m_renderer;
 
 public:
     //methods for handling MPlayer OS X VO Protocol

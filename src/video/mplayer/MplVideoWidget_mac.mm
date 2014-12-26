@@ -56,10 +56,16 @@ sharedBufferName:(NSString *)aName;
 
 @interface VideoRenderer ()
 - (void)connect;
-- (void)disconnect;
+//- (void)disconnect;
 @end
 
-#pragma mark -
+
+struct VideoRendererWrapper
+{
+    VideoRenderer *m_vr;
+};
+
+//#pragma mark -
 
 @implementation VideoRenderer
 
@@ -86,7 +92,7 @@ sharedBufferName:(NSString *)aName
 - (void)dealloc
 {
     qDebug() << "[VideoRenderer dealloc]\n";
-
+    /*
     if ([m_thread isExecuting])
     {
         [self performSelector:@selector(disconnect)
@@ -98,14 +104,14 @@ sharedBufferName:(NSString *)aName
     while ([m_thread isExecuting])
     {
     }
+*/
+    [m_thread release];
 
     qDebug() << "[VideoRenderer dealloc] going to release m_sharedBufferName\n";
 
     [m_sharedBufferName release];
 
     qDebug() << "[VideoRenderer dealloc] going to dealloc super\n";
-
-    [m_thread release];
 
     m_widget = 0;
 
@@ -120,17 +126,21 @@ sharedBufferName:(NSString *)aName
     //{
         //[NSConnection serviceConnectionWithName:m_sharedBufferName
          //                            rootObject:self];
+        NSAutoreleasePool * pool = [NSAutoreleasePool new];
+        NSRunLoop* myRunLoop = [NSRunLoop currentRunLoop];
 
         NSConnection *serverConnection = [NSConnection new];
         [serverConnection setRootObject:self];
         [serverConnection registerName:m_sharedBufferName];
 
-        CFRunLoopRun();
+        [myRunLoop run];
 
         [serverConnection release];
+        [self stop];
+        [pool release];
    //}
 }
-
+/*
 - (void)disconnect
 {
     qDebug() << "[VideoRenderer disconnect]\n";
@@ -139,10 +149,10 @@ sharedBufferName:(NSString *)aName
     [self stop];
 
     qDebug() << "[VideoRenderer disconnect] finished\n";
-}
+}*/
 
-#pragma mark -
-#pragma mark MPlayerOSXVOProto
+//#pragma mark -
+//#pragma mark MPlayerOSXVOProto
 
 - (int)startWithWidth:(bycopy int)width
            withHeight:(bycopy int)height
@@ -156,12 +166,14 @@ sharedBufferName:(NSString *)aName
 
 - (void)stop
 {
-    m_widget->stop();
+    if (m_widget)
+        m_widget->stop();
 }
 
 - (void)render
 {
-    m_widget->getFrame();
+    if (m_widget)
+        m_widget->getFrame();
 }
 
 - (void)toggleFullscreen
@@ -307,13 +319,13 @@ MplVideoWidget::~MplVideoWidget()
 {
     qDebug() << "MplVideoWidget::~MplVideoWidget()\n";
     {
-    stop();
-
-    VideoRenderer *vr = (VideoRenderer*) m_renderer;
+    //stop();
 
     qDebug() << "MplVideoWidget::~MplVideoWidget() vr =" << vr << "\n";
 
-    [vr release];
+    [m_renderer->m_vr release];
+
+    delete m_renderer;
 
     m_renderer = 0;
     }
@@ -344,7 +356,9 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
 
     setViewport(new QWidget);
 
-    m_renderer = (void*) [[VideoRenderer alloc] initWithWidget:this
+    m_renderer = new VideoRendererWrapper;
+
+    m_renderer->m_vr = [[VideoRenderer alloc] initWithWidget:this
                     sharedBufferName:[[NSString alloc] initWithBytes:"bceventmplayer"
                     length:14
                     encoding:NSASCIIStringEncoding]];
