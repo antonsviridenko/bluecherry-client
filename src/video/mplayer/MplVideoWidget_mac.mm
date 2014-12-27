@@ -63,7 +63,7 @@ sharedBufferName:(NSString *)aName;
 struct VideoRendererWrapper
 {
     VideoRenderer *m_vr;
-    NSAutoreleasePool *pool;
+    //NSAutoreleasePool *pool;
 };
 
 //#pragma mark -
@@ -320,14 +320,17 @@ MplVideoWidget::~MplVideoWidget()
 {
     qDebug() << "MplVideoWidget::~MplVideoWidget()\n";
     {
+    NSAutoreleasePool * pool = [NSAutoreleasePool new];
     //stop();
 
     [m_renderer->m_vr release];
-    [m_renderer->pool release];
+    //[m_renderer->pool release];
 
     delete m_renderer;
 
     m_renderer = 0;
+
+    [pool release];
     }
     qDebug() << "MplVideoWidget::~MplVideoWidget() finished\n";
 }
@@ -358,12 +361,16 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
 
     m_renderer = new VideoRendererWrapper;
 
-    m_renderer->pool = [NSAutoreleasePool new];
+    //m_renderer->pool = [NSAutoreleasePool new];
+    NSAutoreleasePool * pool = [NSAutoreleasePool new];
 
     m_renderer->m_vr = [[VideoRenderer alloc] initWithWidget:this
                     sharedBufferName:[[NSString alloc] initWithBytes:"bceventmplayer"
                     length:14
                     encoding:NSASCIIStringEncoding]];
+
+    [pool release];
+
 }
 
 void MplVideoWidget::initVideo(VideoPlayerBackend *videoPlayerBackend)
