@@ -160,7 +160,10 @@ sharedBufferName:(NSString *)aName
             withBytes:(bycopy int)bytes
            withAspect:(bycopy int)aspect
 {
-    m_widget->initSharedMem([m_sharedBufferName UTF8String], width, height, bytes);
+    qDebug() << "[VideoRenderer startWithWidth]\n";
+
+    if (m_widget)
+        m_widget->initSharedMem([m_sharedBufferName UTF8String], width, height, bytes);
 
     return 0;
 }
@@ -321,9 +324,9 @@ MplVideoWidget::~MplVideoWidget()
     qDebug() << "MplVideoWidget::~MplVideoWidget()\n";
     {
     NSAutoreleasePool * pool = [NSAutoreleasePool new];
-    //stop();
+    stop();
 
-    [m_renderer->m_vr release];
+    [m_renderer->m_vr dealloc];
     //[m_renderer->pool release];
 
     delete m_renderer;
@@ -361,6 +364,7 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
 
     m_renderer = new VideoRendererWrapper;
 
+    qDebug() << "MplVideoWidget::MplVideoWidget() going to create VideoRenderer instance\n";
     //m_renderer->pool = [NSAutoreleasePool new];
     NSAutoreleasePool * pool = [NSAutoreleasePool new];
 
