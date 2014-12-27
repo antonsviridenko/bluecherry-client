@@ -63,6 +63,7 @@ sharedBufferName:(NSString *)aName;
 struct VideoRendererWrapper
 {
     VideoRenderer *m_vr;
+    NSAutoreleasePool *pool;
 };
 
 //#pragma mark -
@@ -322,6 +323,7 @@ MplVideoWidget::~MplVideoWidget()
     //stop();
 
     [m_renderer->m_vr release];
+    [m_renderer->pool release];
 
     delete m_renderer;
 
@@ -355,6 +357,8 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
     setViewport(new QWidget);
 
     m_renderer = new VideoRendererWrapper;
+
+    m_renderer->pool = [NSAutoreleasePool new];
 
     m_renderer->m_vr = [[VideoRenderer alloc] initWithWidget:this
                     sharedBufferName:[[NSString alloc] initWithBytes:"bceventmplayer"
