@@ -93,7 +93,7 @@ sharedBufferName:(NSString *)aName
 - (void)dealloc
 {
     qDebug() << "[VideoRenderer dealloc]\n";
-    /*
+
     if ([m_thread isExecuting])
     {
         [self performSelector:@selector(disconnect)
@@ -105,7 +105,7 @@ sharedBufferName:(NSString *)aName
     while ([m_thread isExecuting])
     {
     }
-*/
+
     [m_thread release];
 
     qDebug() << "[VideoRenderer dealloc] going to release m_sharedBufferName\n";
@@ -128,20 +128,23 @@ sharedBufferName:(NSString *)aName
         //[NSConnection serviceConnectionWithName:m_sharedBufferName
          //                            rootObject:self];
         NSAutoreleasePool * pool = [NSAutoreleasePool new];
-        NSRunLoop* myRunLoop = [NSRunLoop currentRunLoop];
+        //NSRunLoop* myRunLoop = [NSRunLoop currentRunLoop];
 
         NSConnection *serverConnection = [NSConnection new];
         [serverConnection setRootObject:self];
         [serverConnection registerName:m_sharedBufferName];
 
-        [myRunLoop run];
+        //[myRunLoop run];
+        CFRunLoopRun();
+
+        qDebug() << "[exiting thread loop]\n";
 
         [serverConnection release];
-        [self stop];
+        //[self stop];
         [pool release];
    //}
 }
-/*
+
 - (void)disconnect
 {
     qDebug() << "[VideoRenderer disconnect]\n";
@@ -150,7 +153,7 @@ sharedBufferName:(NSString *)aName
     [self stop];
 
     qDebug() << "[VideoRenderer disconnect] finished\n";
-}*/
+}
 
 //#pragma mark -
 //#pragma mark MPlayerOSXVOProto
