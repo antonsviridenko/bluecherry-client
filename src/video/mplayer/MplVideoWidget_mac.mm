@@ -81,6 +81,8 @@ sharedBufferName:(NSString *)aName
     m_sharedBufferName = aName;
     m_widget = aWidget;
 
+    qDebug() << "[VideoRenderer initWithWidget] m_sharedBufferName=" << [m_sharedBufferName UTF8String] << "\n";
+
     m_thread = [[NSThread alloc] initWithTarget:self
                                     selector:@selector(connect)
                                        object:nil];
@@ -367,6 +369,8 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
 
     QString connectionName = QString("bceventmplayer") + QString::number((quint64) m_viewport->winId());
 
+    qDebug() << "connectionName = " << connectionName << "\n";
+
     m_renderer = new VideoRendererWrapper;
 
     qDebug() << "MplVideoWidget::MplVideoWidget() going to create VideoRenderer instance\n";
@@ -374,7 +378,7 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
     NSAutoreleasePool * pool = [NSAutoreleasePool new];
 
     m_renderer->m_vr = [[VideoRenderer alloc] initWithWidget:this
-                    sharedBufferName:[[NSString alloc] initWithBytes: (connectionName.toAscii().constData())
+                    sharedBufferName:[[NSString alloc] initWithBytes:(connectionName.toAscii().constData())
                     length:14
                     encoding:NSASCIIStringEncoding]];
 

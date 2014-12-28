@@ -120,6 +120,10 @@ bool MplayerProcess::start(QString filename)
 #endif
                     << filename);
 
+#ifdef Q_OS_MAC
+    qDebug() << "mplayer started with \"" << "corevideo:shared_buffer:buffer_name=bceventmplayer" + m_wid << "\"\n";
+#endif
+
     if (!m_process->waitForStarted())
     {
         QString errStr(tr("MPlayer process "));
