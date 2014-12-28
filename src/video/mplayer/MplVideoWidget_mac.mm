@@ -379,7 +379,7 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
 
     m_renderer->m_vr = [[VideoRenderer alloc] initWithWidget:this
                     sharedBufferName:[[NSString alloc] initWithBytes:(connectionName.toAscii().constData())
-                    length:14
+                    length:(connectionName.size())
                     encoding:NSASCIIStringEncoding]];
 
     [pool release];
