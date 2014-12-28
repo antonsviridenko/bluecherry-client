@@ -116,7 +116,7 @@ bool MplayerProcess::start(QString filename)
                     //<< "-nokeepaspect"
 #endif
 #ifdef Q_OS_MAC
-                    << "-vo" << "corevideo:shared_buffer:buffer_name=bceventmplayer"
+                    << "-vo" << "corevideo:shared_buffer:buffer_name=bceventmplayer" + m_wid
 #endif
                     << filename);
 

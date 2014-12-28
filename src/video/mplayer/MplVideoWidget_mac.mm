@@ -365,6 +365,8 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
 
     setViewport(new QWidget);
 
+    QString connectionName = QString("bceventmplayer") + QString::number((quint64) m_viewport->winId());
+
     m_renderer = new VideoRendererWrapper;
 
     qDebug() << "MplVideoWidget::MplVideoWidget() going to create VideoRenderer instance\n";
@@ -372,7 +374,7 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
     NSAutoreleasePool * pool = [NSAutoreleasePool new];
 
     m_renderer->m_vr = [[VideoRenderer alloc] initWithWidget:this
-                    sharedBufferName:[[NSString alloc] initWithBytes:"bceventmplayer"
+                    sharedBufferName:[[NSString alloc] initWithBytes: (connectionName.toAscii().constData())
                     length:14
                     encoding:NSASCIIStringEncoding]];
 
