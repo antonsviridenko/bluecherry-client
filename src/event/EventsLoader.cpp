@@ -40,7 +40,7 @@ void EventsLoader::setLimit(int limit)
     m_limit = limit;
 }
 
-void EventsLoader::setLastId(int lastId)
+void EventsLoader::setLastId(qint64 lastId)
 {
     m_lastId = lastId;
 }

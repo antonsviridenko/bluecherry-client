@@ -37,7 +37,7 @@ public:
     void setLimit(int limit);
     void setStartTime(const QDateTime &startTime);
     void setEndTime(const QDateTime &endTime);
-    void setLastId(int lastId);
+    void setLastId(qint64 lastId);
 
     void loadEvents();
 
@@ -53,7 +53,7 @@ private:
     int m_limit;
     QDateTime m_startTime;
     QDateTime m_endTime;
-    int m_lastId;
+    qint64 m_lastId;
 
 };
 

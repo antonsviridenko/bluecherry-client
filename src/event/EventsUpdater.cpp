@@ -19,6 +19,7 @@
 #include "server/DVRServer.h"
 #include "server/DVRServerRepository.h"
 #include "event/EventsLoader.h"
+#include "core/EventData.h"
 
 EventsUpdater::EventsUpdater(DVRServerRepository *serverRepository, QObject *parent) :
         QObject(parent), m_serverRepository(serverRepository), m_limit(-1)
@@ -91,6 +92,13 @@ void EventsUpdater::updateServer(DVRServer *server)
             this, SLOT(eventsLoaded(DVRServer*,bool,QList<EventData*>)));
 
     eventsLoader->setLimit(m_limit);
+
+    if (m_limit > 0 && m_updateTimer.isActive())
+    {
+        if (m_incrementalBuffer.count() > 0)
+            eventsLoader->setLastId(m_incrementalBuffer.first()->eventId());
+    }
+
     eventsLoader->setStartTime(m_startTime);
     eventsLoader->setEndTime(m_endTime);
     eventsLoader->loadEvents();
@@ -102,7 +110,19 @@ void EventsUpdater::eventsLoaded(DVRServer *server, bool ok, const QList<EventDa
         return;
 
     if (ok)
-        emit serverEventsAvailable(server, events);
+    {
+        if (m_limit > 0 && m_updateTimer.isActive())
+        {
+            m_incrementalBuffer = events + m_incrementalBuffer;
+
+            while(m_incrementalBuffer.count() > m_limit)
+                m_incrementalBuffer.removeLast();
+
+            emit serverEventsAvailable(server, m_incrementalBuffer);
+        }
+        else
+            emit serverEventsAvailable(server, events);
+    }
 
     if (m_updatingServers.remove(server) && m_updatingServers.isEmpty())
         emit loadingFinished();

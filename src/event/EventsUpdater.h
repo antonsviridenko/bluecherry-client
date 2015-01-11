@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QSet>
 #include <QTimer>
+#include <QList>
 
 class DVRServer;
 class DVRServerRepository;
@@ -63,6 +64,7 @@ private:
     int m_limit;
     QDateTime m_startTime;
     QDateTime m_endTime;
+    QList<EventData *> m_incrementalBuffer;
 
 };
 
