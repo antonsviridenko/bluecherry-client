@@ -328,7 +328,11 @@ MplVideoWidget::MplVideoWidget(QWidget *parent)
       m_srcBufferSize(0),
       m_dstBufferSize(0),
       m_frontBuffer(0),
-      m_backBuffer(0)
+      m_backBuffer(0),
+      m_cropOffsetX(0),
+      m_cropOffsetY(0),
+      m_cropWidth(0),
+      m_cropHeight(0)
 {
     setAutoFillBackground(false);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -389,6 +393,13 @@ bool MplVideoWidget::eventFilter(QObject *obj, QEvent *ev)
         m_frameLock.unlock();
         return true;
     }
+
+    if (m_cropWidth == 0 || m_cropHeight == 0)
+    {
+        m_cropWidth = m_frameWidth;
+        m_cropHeight = m_frameHeight;
+    }
+
 
     QImage frame = QImage(m_frontBuffer, m_frameWidth, m_frameHeight, QImage::Format_ARGB32);
 
@@ -496,6 +507,11 @@ void MplVideoWidget::zoomOut()
 void MplVideoWidget::setZoom(double z)
 {
     m_zoomFactor = z;
+
+    m_cropWidth = (double)m_frameWidth / m_zoomFactor;
+    m_cropHeight = (double)m_frameHeight / m_zoomFactor;
+
+    //if m_zoomFactor > 1.0, if < 1.0 ...
 
     if (m_viewport)
     {

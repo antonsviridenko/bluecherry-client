@@ -97,6 +97,12 @@ private:
     int m_bpp;//bytes per pixel
     struct VideoRendererWrapper *m_renderer;
 
+    //zoom variables
+    m_cropOffsetX;
+    m_cropOffsetY;
+    m_cropWidth;
+    m_cropHeight;
+
 public:
     //methods for handling MPlayer OS X VO Protocol
     void initSharedMem(const char *bufferName, int width, int height, int bpp);
